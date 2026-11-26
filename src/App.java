@@ -21,44 +21,10 @@ public class App {
             switch (value) {
                 case 1:
                     associatePersons(persons, g);
-                    value = scanner.nextInt();
                     break;
                 case 2:
-                    printPersons(persons);
-                    System.out.print(
-                            "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
-                    char person = scanner.next().charAt(0);
-
-                    while (Arrays.binarySearch(persons, person) < 0) {
-                        System.out.println("Personne non trouvée.");
-                        person = scanner.next().charAt(0);
-                    }
-
-                    System.out.print("Voici les chambres disponibles: ");
-                    for (int room : rooms) {
-                        System.out.print(room + " ");
-                    }
-                    System.out.println();
-
-                    System.out.print("Entrez les chambres dans l'ordre de préférence: ");
-                    int[] preferences = new int[n];
-                    for (int i = 0; i < n; i++) {
-                        // System.out.print("Préférence " + (i + 1) + ": ");
-                        preferences[i] = scanner.nextInt();
-                        // relier les personnes aux chambres dans l'ordre de préférence
-                        while (Arrays.binarySearch(rooms, preferences[i]) < 0) {
-                            System.out.println("Chambre non trouvée.");
-                            preferences[i] = scanner.nextInt();
-                        }
-                    }
-
-                    // L'utilisateur doit taper le nom d'une personne
-                    // de la liste (à vérifier) et ensuite préciser dans
-                    // l'ordre de préférence les chambres qu'elle souhaite.
-
+                    definePreferences(persons, rooms);
                     break;
-                // case 3:
-
                 default:
                     System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
                     System.out.print(
@@ -87,6 +53,7 @@ public class App {
         char[] persons = new char[n];
         for (int i = 0; i < n; i++) {
             persons[i] = (char) (i + 'A');
+            new Person(persons[i]);
         }
 
         return persons;
@@ -126,8 +93,41 @@ public class App {
         int[] rooms = new int[n];
         for (int i = 0; i < n; i++) {
             rooms[i] = i + 1;
+            new Room(rooms[i], false);
+
         }
         return rooms;
+    }
+
+    public static void definePreferences(char[] persons, int[] rooms) {
+        printPersons(persons);
+        System.out.print(
+                "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
+        char person = scanner.next().charAt(0);
+
+        while (Arrays.binarySearch(persons, person) < 0) {
+            System.out.println("Personne non trouvée.");
+            person = scanner.next().charAt(0);
+        }
+
+        System.out.print("Voici les chambres disponibles: ");
+        for (int room : rooms) {
+            System.out.print(room + " ");
+        }
+        System.out.println();
+
+        System.out.print("Entrez les chambres dans l'ordre de préférence: ");
+        int[] preferences = new int[persons.length];
+        for (int i = 0; i < persons.length; i++) {
+            // System.out.print("Préférence " + (i + 1) + ": ");
+            preferences[i] = scanner.nextInt();
+            // relier les personnes aux chambres dans l'ordre de préférence
+            while (Arrays.binarySearch(rooms, preferences[i]) < 0) {
+                System.out.println("Chambre non trouvée.");
+                preferences[i] = scanner.nextInt();
+            }
+        }
+
     }
 }
 
