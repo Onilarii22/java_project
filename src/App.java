@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class App {
@@ -7,6 +6,12 @@ public class App {
     public static void main(String[] args) throws Exception {
         System.out.println("Entrez le nombre de personnes: ");
         int n = scanner.nextInt();
+
+        // vérifier qu'il n'zentre pas un nombre inférieur à 0 ou supérieur à 26
+        while (n < 0 || n > 26) {
+            System.out.println("Veuillez entrer un nombre entre 0 et 26: ");
+            n = scanner.nextInt();
+        }
 
         Person[] persons = createPerson(n);
         Room[] rooms = createRoom(n);
@@ -17,7 +22,8 @@ public class App {
                 "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
         int value = scanner.nextInt();
 
-        while (value != 3) {
+        boolean done = false;
+        while (!done) {
             switch (value) {
                 case 1:
                     associatePersons(persons, g);
@@ -25,6 +31,9 @@ public class App {
                 case 2:
                     // définit les préférences de la personne
                     definePreferences(persons, rooms);
+                    break;
+                case 3:
+                    done = checkPreferences(persons);
                     break;
                 default:
                     System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
@@ -37,16 +46,6 @@ public class App {
             System.out.print(
                     "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
             value = scanner.nextInt();
-        }
-
-        if (value == 3) {
-            // faudra vérifier que toutes les personnes ont
-            // des relations et que toutes
-            // leurs préférences sont définies
-            System.out.print(
-                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-            value = scanner.nextInt();
-
         }
     }
 
@@ -124,7 +123,8 @@ public class App {
 
         System.out.print(
                 "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
-        char person = scanner.next().charAt(0);
+        char person = scanner.nextLine().charAt(0);
+        // prendre tout ce que la personne a tapé et pas seulement le premier caractère
 
         // vérifie si la personne existe dans le tableau persons
         Person p = findPerson(persons, person);
@@ -148,6 +148,9 @@ public class App {
             int roomNumber = scanner.nextInt();
             Room room = findRoom(rooms, roomNumber);
 
+            if (preferences.length == 0) {
+            }
+
             // Vérifie que la chambre existe et n'est pas déjà choisie
             while (room == null || findRoom(preferences, roomNumber) != null) {
 
@@ -166,6 +169,19 @@ public class App {
 
         p.setPreferences(preferences);
     }
+
+    public static boolean checkPreferences(Person[] people) {
+        boolean valid = true;
+        for (Person person : people) {
+            Room[] preferences = person.getPreferences();
+            if (preferences.length == 0) {
+                System.out.println(person.getName() + " : préférences absentes");
+                valid = false;
+            }
+        }
+        return valid;
+    }
+
 }
 
 // chaque chambre aura un etat ocupé ou non et
