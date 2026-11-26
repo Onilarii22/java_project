@@ -23,7 +23,6 @@ public class App {
                     associatePersons(persons, g);
                     break;
                 case 2:
-
                     // définit les préférences de la personne
                     definePreferences(persons, rooms);
                     break;
