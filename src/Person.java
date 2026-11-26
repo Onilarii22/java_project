@@ -1,18 +1,3 @@
-/*public class Person {
-
-    private char name;
-    private char[] persons; // tableau des personnes avec qui il a une relation
-    private int[] preferences; // tableau des chambres dans l'ordre de préférence
-
-    public Person(char name, char[] persons, int[] preferences) {
-        this.name = name;
-        this.persons = persons;
-        this.preferences = preferences;
-    }
-
-
-} */
-
 import java.util.Arrays;
 
 public class Person {
@@ -22,7 +7,7 @@ public class Person {
 
     public Person(char name) {
         this.name = name;
-        this.preferences = new int[0];
+        this.preferences = new int[0]; // initialiser le tableau des préférences à une taille de 0
     }
 
     public char getName() {

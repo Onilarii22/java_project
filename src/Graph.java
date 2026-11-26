@@ -3,9 +3,9 @@ import java.util.Arrays;
 public class Graph {
 
     private int[][] adjacencyMatrix;
-    private char[] vertice;
+    private Person[] vertice;
 
-    public Graph(char[] vertice) {
+    public Graph(Person[] vertice) {
         this.vertice = vertice;
         adjacencyMatrix = new int[vertice.length][vertice.length];
     }
@@ -27,10 +27,10 @@ public class Graph {
 
     public void printGraph() {
         for (int i = 0; i < vertice.length; i++) {
-            System.out.print(vertice[i] + ": ");
+            System.out.print(vertice[i].getName() + ": ");
             for (int j = 0; j < vertice.length; j++) {
                 if (adjacencyMatrix[i][j] == 1) {
-                    System.out.print(vertice[j] + " ");
+                    System.out.print(vertice[j].getName() + " ");
                 }
             }
             System.out.println();

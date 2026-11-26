@@ -3,9 +3,9 @@ public class Room {
     private int number;
     private boolean state;
 
-    public Room(int number, boolean state) {
+    public Room(int number) {
         this.number = number;
-        this.state = state;
+        this.state = false;
     }
 
     public int getNumber() {
