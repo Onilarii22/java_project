@@ -142,17 +142,27 @@ public class App {
         System.out.println();
 
         System.out.print("Entrez les chambres dans l'ordre de préférence: ");
-        int[] preferences = new int[rooms.length];
+        Room[] preferences = new Room[rooms.length];
 
         for (int i = 0; i < rooms.length; i++) {
 
-            preferences[i] = scanner.nextInt();
-            Room room = findRoom(rooms, preferences[i]);
-            while (room == null) {
-                System.out.println("Chambre non trouvée.");
-                preferences[i] = scanner.nextInt();
-                room = findRoom(rooms, preferences[i]);
+            int roomNumber = scanner.nextInt();
+            Room room = findRoom(rooms, roomNumber);
+
+            // Vérifie que la chambre existe et n'est pas déjà choisie
+            while (room == null || findRoom(preferences, roomNumber) != null) {
+
+                if (room == null) {
+                    System.out.println("Chambre non trouvée.");
+                } else {
+                    System.out.println("Chambre déjà dans les préférences.");
+                }
+
+                roomNumber = scanner.nextInt();
+                room = findRoom(rooms, roomNumber);
             }
+
+            preferences[i] = room;
         }
 
         p.setPreferences(preferences);
