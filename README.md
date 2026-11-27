@@ -51,7 +51,7 @@ de dépendances peuvent être placés dans `lib/`.
 ## Utilisation
 
 Le programme demande d'abord le nombre `n` de personnes, qui doit être compris entre
-**0 et 26**. Elles sont nommées automatiquement de `A` à `Z` et les chambres
+**1 et 26**. Elles sont nommées automatiquement de `A` à `Z` et les chambres
 numérotée de `1` à `n` sont créées.
 
 Un premier menu permet de :
@@ -94,8 +94,7 @@ Les sources Java actives sont dans `src/` :
   côtés de la matrice.
 
 Les dossiers de projet sont configurés dans [`.vscode/settings.json`](.vscode/settings.json) :
-`src/` pour les sources, `bin/` pour la sortie compilée et `lib/**/*.jar` pour
-d'éventuelles bibliothèques.
+`src/` pour les sources, `bin/` pour la sortie compilée.
 
 ## Fonctionnement et limites actuelles
 

@@ -305,7 +305,7 @@ public class App {
         while (j < persons.length) {
             if (i != j
                     && persons[j].getAssignedRoom() != null
-                    && g.hasEdge(persons[i].getName(), persons[j].getName())
+                    && g.hasEdge(persons[i], persons[j])
                     && rank(persons[i], persons[j].getAssignedRoom()) < rank(persons[i],
                             persons[i].getAssignedRoom())) {
                 return true;

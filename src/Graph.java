@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Graph {
 
     private int[][] adjacencyMatrix;
@@ -27,9 +25,9 @@ public class Graph {
         adjacencyMatrix[destinationIndex][sourceIndex] = 1;
     }
 
-    public boolean hasEdge(char source, char destination) {
-        int sourceIndex = Arrays.binarySearch(vertice, source);
-        int destinationIndex = Arrays.binarySearch(vertice, destination);
+    public boolean hasEdge(Person source, Person destination) {
+    int sourceIndex = findIndex(source.getName());
+    int destinationIndex = findIndex(destination.getName());
 
         return adjacencyMatrix[sourceIndex][destinationIndex] == 1;
     }
