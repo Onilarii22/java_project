@@ -1,140 +1,212 @@
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class App {
     static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.out.println("Entrez le nombre de personnes: ");
         int n = scanner.nextInt();
 
-        char[] persons = createPerson(n);
-        int[] rooms = createRoom(n);
-        Graph g = new Graph(persons);
-        // g.printGraph();
+        // vérifier qu'il n'zentre pas un nombre inférieur à 0 ou supérieur à 26
+        while (n < 0 || n > 26) {
+            System.out.println("Veuillez entrer un nombre entre 0 et 26: ");
+            n = scanner.nextInt();
+        }
 
-        Person[] people = createPeople(persons);
-        int value;
+        Person[] persons = createPerson(n);
+        Room[] rooms = createRoom(n);
+        Graph g = new Graph(persons);
+
         boolean done = false;
         while (!done) {
             System.out.print(
-                "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-            value = scanner.nextInt();
+                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
+            int value = scanner.nextInt();
+
             switch (value) {
                 case 1:
+                    // crée une relation entre deux personnes
                     associatePersons(persons, g);
                     break;
                 case 2:
-                    scanner.nextLine();
-                    definePreferences(people);
+                    // définit les préférences de la personne
+                    definePreferences(persons, rooms);
                     break;
-                case 3: 
-                    done = checkPreferences(people);
+                case 3:
+                    // vérifie qu eles préférences de toutes les personnes ont été définies
+                    done = checkPreferences(persons);
                     break;
                 default:
                     System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
+                    System.out.print(
+                            "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
+                    value = scanner.nextInt();
+                    break;
             }
         }
 
+        g.printGraph();
+
+        assignRoom(persons);
+
+        System.out.print("Voici la liste des personnes avec leurs chambres attibuées: ");
+        for (Person person : persons) {
+            System.out.print(person.getName() + " " + person.getAssignedRoom() + " ");
+        }
+        System.out.println();
     }
 
-    public static Person[] createPeople(char[] persons) {
-        Person[] people = new Person[persons.length];
-        for (int i = 0; i < persons.length; i++) {
-            people[i] = new Person(persons[i]);
-        }
-        return people;
-    }
-    public static char[] createPerson(int n) {
-        char[] persons = new char[n];
+    public static Person[] createPerson(int n) {
+        Person[] persons = new Person[n];
         for (int i = 0; i < n; i++) {
-            persons[i] = (char) (i + 'A');
-            new Person(persons[i]);
+            persons[i] = new Person((char) (i + 'A'));
         }
 
         return persons;
     }
 
-    public static void printPersons(char[] persons) {
+    public static void printPersons(Person[] persons) {
         System.out.print("Voici la liste des personnes: ");
-        for (char person : persons) {
-            System.out.print(person + " ");
+        for (Person person : persons) {
+            System.out.print(person.getName() + " ");
         }
         System.out.println();
     }
 
-    public static void associatePersons(char[] persons, Graph g) {
+    public static Person verifyPersonExistence(Person[] persons) {
+        String input = scanner.next();
+
+        // vérifie si l'entrée de l'utisalateur a bien un seul caractère
+        while (input.length() >= 2) {
+            System.out.println("Veuillez un seul caractère pour la personne.");
+            input = scanner.next();
+        }
+
+        char person = input.charAt(0);
+
+        // vérifie si la personne existe dans le tableau persons
+        Person p = findPerson(persons, person);
+        while (p == null) {
+            System.out.println("Personne non trouvée.");
+            person = scanner.next().charAt(0);
+            p = findPerson(persons, person);
+        }
+        return p;
+    }
+
+    public static void associatePersons(Person[] persons, Graph g) {
+        // crée l'arête signifiant la relation "ne s'aime pas" entre deux personnes
         printPersons(persons);
         System.out.print("Première personne de la relation «ne s’aiment pas» ");
-        char person_1 = scanner.next().charAt(0);
-
-        while (Arrays.binarySearch(persons, person_1) < 0) {
-            System.out.println("Personne non trouvée.");
-            person_1 = scanner.next().charAt(0);
-        }
+        Person p1 = verifyPersonExistence(persons);
 
         System.out.print("Deuxième personne de la relation «ne s’aiment pas» ");
-        char person_2 = scanner.next().charAt(0);
+        Person p2 = verifyPersonExistence(persons);
 
-        while (Arrays.binarySearch(persons, person_2) < 0) {
-            System.out.println("Personne non trouvée.");
-            person_2 = scanner.next().charAt(0);
-        }
-
-        g.addEdge(person_1, person_2);
+        g.addEdge(p1.getName(), p2.getName());
 
     }
 
-    public static int[] createRoom(int n) {
-        int[] rooms = new int[n];
-        for (int i = 0; i < n; i++) {
-            rooms[i] = i + 1;
-            new Room(rooms[i], false);
+    public static Person findPerson(Person[] persons, char person) {
+        for (Person p : persons) {
+            if (p.getName() == person) {
+                return p;
+            }
+        }
+        return null;
+    }
 
+    public static Room[] createRoom(int n) {
+        Room[] rooms = new Room[n];
+        for (int i = 0; i < n; i++) {
+            rooms[i] = new Room(i + 1);
         }
         return rooms;
     }
 
-        /** Lit une ligne du type « A 1 2 3 » et enregistre les préférences. */
-    public static void definePreferences(Person[] people) {
-        System.out.println("Entrez le nom puis les chambres par ordre de préférence (ex. A 1 2 3):");
-        String[] words = scanner.nextLine().trim().split("\\s+");
-
-        Person person = null;
-        for (Person p : people) {
-            if (words[0].equals(String.valueOf(p.getName()))) {
-                person = p;
+    public static Room findRoom(Room[] rooms, int number) {
+        for (Room room : rooms) {
+            if (room == null)
+                return null;
+            if (room.getNumber() == number) {
+                return room;
             }
         }
-        if (person == null) {
-            System.out.println("Personne non trouvée.");
-            return;
-        }
-
-        int[] preferences = new int[words.length - 1];
-        for (int i = 0; i < preferences.length; i++) {
-            preferences[i] = Integer.parseInt(words[i + 1]);
-        }
-        person.setPreferences(preferences);
+        return null;
     }
 
+    public static void definePreferences(Person[] persons, Room[] rooms) {
+        printPersons(persons);
+
+        System.out.print(
+                "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
+
+        Person p = verifyPersonExistence(persons);
+
+        if (p.getPreferences().length != 0) {
+            System.out.print(
+                    "Les préférences de cette personne sont déjà définies, voulez-vous les modifiées? \n");
+        }
+
+        System.out.print("Voici les chambres disponibles: ");
+        for (Room room : rooms) {
+            System.out.print(room.getNumber() + " ");
+        }
+        System.out.println();
+
+        System.out.print("Entrez les chambres dans l'ordre de préférence: ");
+        Room[] preferences = new Room[rooms.length];
+
+        for (int i = 0; i < rooms.length; i++) {
+
+            int roomNumber = scanner.nextInt();
+            Room room = findRoom(rooms, roomNumber);
+
+            // Vérifie que la chambre existe et n'est pas déjà choisie
+            while (room == null || findRoom(preferences, roomNumber) != null) {
+
+                if (room == null) {
+                    System.out.println("Chambre non trouvée.");
+                } else {
+                    System.out.println("Chambre déjà dans les préférences.");
+                }
+
+                roomNumber = scanner.nextInt();
+                room = findRoom(rooms, roomNumber);
+            }
+
+            preferences[i] = room;
+        }
+
+        p.setPreferences(preferences);
+    }
 
     public static boolean checkPreferences(Person[] people) {
         boolean valid = true;
         for (Person person : people) {
-            int[] preferences = person.getPreferences();
+            Room[] preferences = person.getPreferences();
             if (preferences.length == 0) {
                 System.out.println(person.getName() + " : préférences absentes");
-                valid = false;
-            } else if (!isComplete(preferences, people.length)) {
-                System.out.println(person.getName() + " : préférences incomplètes ou incorrectes");
                 valid = false;
             }
         }
         return valid;
     }
 
-    // true si chaque chambre de 1 à n apparaît exactement une fois. */
+    public static void assignRoom(Person[] persons) {
+        for (Person person : persons) {
+            Room[] prefs = person.getPreferences();
+
+            for (Room room : prefs) {
+                if (room.isOccupied()) {
+                    return;
+                }
+                room.setOccupied(true);
+                person.setRoom(room);
+            }
+        }
+    }
+        // true si chaque chambre de 1 à n apparaît exactement une fois. */
     public static boolean isComplete(int[] preferences, int n) {
         if (preferences.length != n) {
             return false;
@@ -174,7 +246,43 @@ public class App {
             assignment[second] = temp;
         }
     }
+
+    public static int rank(Person person, Room room) {
+        Room[] preferences = person.getPreferences(); 
+        int i = 0;                                    
+        while (preferences[i] != room) {              
+            i++;                                      
+        }
+        return i;                                     
+    }
+
+    /** true si la personne i préfère la chambre d'au moins une personne qu'elle n'aime pas. */
+    public static boolean isJealous(int i, Person[] persons, Graph g) {
+        boolean jealous = false;
+        int j = 0;
+        while (j < persons.length && !jealous) {
+            jealous = g.hasEdge(persons[i].getName(), persons[j].getName()) && rank(persons[i], persons[i].getAssignedRoom()) < rank(persons[i], persons[j].getAssignedRoom());
+            j++;
+        }
+        return jealous;
+    }
+
+    /** Compte les personnes jalouses, chacune une seule fois. */
+    public static int countJealous(Person[] persons, Graph g) {
+        int count = 0;
+        for (int i = 0; i < persons.length; i++) {
+            if (isJealous(i, persons, g)) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
+
+// faire en sorte que si les préférences d'une personne ont déjà été remplie
+// qu'on
+// ne le refasse pas sans savoir
+
 // chaque chambre aura un etat ocupé ou non et
 // l'algo naif sera d'attribuer à une personne sa
 // chambre préférée si elle est libre et sion sa
