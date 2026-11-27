@@ -20,7 +20,7 @@ public class App {
         boolean done = false;
         while (!done) {
             System.out.print(
-                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
+                    "Choisissez l'action à effectuer: \n1.Ajouter une relation entre deux personnes;\n2.Ajouter les préférences d’une personne;\n3.Fin;\n");
             int value = scanner.nextInt();
 
             switch (value) {
@@ -33,14 +33,11 @@ public class App {
                     definePreferences(persons, rooms);
                     break;
                 case 3:
-                    // vérifie qu eles préférences de toutes les personnes ont été définies
+                    // vérifie que les préférences de toutes les personnes ont été définies
                     done = checkPreferences(persons);
                     break;
                 default:
                     System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
-                    System.out.print(
-                            "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-                    value = scanner.nextInt();
                     break;
             }
         }
@@ -49,11 +46,35 @@ public class App {
 
         assignRoom(persons);
 
-        System.out.print("Voici la liste des personnes avec leurs chambres attibuées: ");
-        for (Person person : persons) {
-            System.out.print(person.getName() + " " + person.getAssignedRoom() + " ");
+        printAssignments(persons);
+
+        int choice = 0;
+
+        while (choice != 3) {
+            System.out.print(
+                    "Choisissez l'action à effectuer: \n1.Echanger les chambres de deux personnes;\n2.Afficher le nombre de personnes jalouses;\n3.Fin;\n");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    // échange les chambres de deux personnes
+                    swapRooms(persons);
+                    printAssignments(persons);
+                    break;
+                case 2:
+                    // affiche le nombre de personne jalouse
+
+                    break;
+                case 3:
+                    // fin du programme
+                    break;
+                default:
+                    System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
+
+                    break;
+            }
+
         }
-        System.out.println();
     }
 
     public static Person[] createPerson(int n) {
@@ -135,19 +156,7 @@ public class App {
         return null;
     }
 
-    public static void definePreferences(Person[] persons, Room[] rooms) {
-        printPersons(persons);
-
-        System.out.print(
-                "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
-
-        Person p = verifyPersonExistence(persons);
-
-        if (p.getPreferences().length != 0) {
-            System.out.print(
-                    "Les préférences de cette personne sont déjà définies, voulez-vous les modifiées? \n");
-        }
-
+    public static void setPreferences(Person person, Room[] rooms) {
         System.out.print("Voici les chambres disponibles: ");
         for (Room room : rooms) {
             System.out.print(room.getNumber() + " ");
@@ -178,7 +187,39 @@ public class App {
             preferences[i] = room;
         }
 
-        p.setPreferences(preferences);
+        person.setPreferences(preferences);
+    }
+
+    public static void definePreferences(Person[] persons, Room[] rooms) {
+        printPersons(persons);
+
+        System.out.print(
+                "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
+
+        Person p = verifyPersonExistence(persons);
+
+        if (p.getPreferences().length != 0) {
+            System.out.print(
+                    "Les préférences de cette personne sont déjà définies, voulez-vous les modifiées? \n1.Maintenir la définition actuelle;\n2.Modifier les préférences;\n");
+
+            int input = scanner.nextInt();
+
+            switch (input) {
+                case 1:
+                    break;
+                case 2:
+                    setPreferences(p, rooms);
+                    break;
+                default:
+                    System.out.print(
+                            "Entrez un chiffre entre les choix proposés: \n");
+                    input = scanner.nextInt();
+                    break;
+            }
+        } else {
+            setPreferences(p, rooms);
+        }
+
     }
 
     public static boolean checkPreferences(Person[] people) {
@@ -199,13 +240,51 @@ public class App {
 
             for (Room room : prefs) {
                 if (room.isOccupied()) {
-                    return;
+                    continue;
                 }
                 room.setOccupied(true);
                 person.setRoom(room);
+
+                break;
             }
         }
     }
+
+    /** Échange les chambres de deux personnes. */
+    public static void swapRooms(Person[] persons) {
+        System.out.println("Entrez les noms des deux personnes (ex. A B):");
+
+        // j'ai remplacé les findIndex et la vérification de l'existance
+        // des personnes entrées par la fonction écrite our ça
+        Person p1 = verifyPersonExistence(persons);
+        Person p2 = verifyPersonExistence(persons);
+
+        if (p1.getName() == p2.getName() /*
+                                          * je compare les noms des deux personnes pour être sûre qu'on ne remet pas la
+                                          * mm personne deux fois
+                                          */) {
+            System.out.println("Il faut deux personnes différentes.");
+        } else {
+
+            Room temp = p1.getAssignedRoom();
+
+            p1.setRoom(p2.getAssignedRoom());
+            p2.setRoom(temp);
+        }
+    }
+
+    public static void printAssignments(Person[] persons) {
+        System.out.println("\n--- Attribution des chambres ---");
+
+        for (Person person : persons) {
+            if (person.getAssignedRoom() != null) {
+                System.out.println(person.getName() + " -> " + person.getAssignedRoom().getNumber());
+            } else {
+                System.out.println(person.getName() + " -> Aucune chambre attribuée");
+            }
+        }
+    }
+
 }
 
 // faire en sorte que si les préférences d'une personne ont déjà été remplie
