@@ -7,9 +7,9 @@ public class App {
         System.out.println("Entrez le nombre de personnes: ");
         int n = scanner.nextInt();
 
-        // vérifier qu'il n'zentre pas un nombre inférieur à 0 ou supérieur à 26
-        while (n < 0 || n > 26) {
-            System.out.println("Veuillez entrer un nombre entre 0 et 26: ");
+        // vérifier qu'il n'entre pas un nombre inférieur à 1 ou supérieur à 26
+        while (n < 1 || n > 26) {
+            System.out.println("Veuillez entrer un nombre entre 1 et 26: ");
             n = scanner.nextInt();
         }
 
@@ -63,7 +63,8 @@ public class App {
                     break;
                 case 2:
                     // affiche le nombre de personne jalouse
-
+                    int jealous = countJealous(persons, g);
+                    System.out.println("Voici le nombre de personnes jalouses: " + jealous);
                     break;
                 case 3:
                     // fin du programme
@@ -124,7 +125,11 @@ public class App {
         System.out.print("Deuxième personne de la relation «ne s’aiment pas» ");
         Person p2 = verifyPersonExistence(persons);
 
-        g.addEdge(p1.getName(), p2.getName());
+        if (p1.getName() == p2.getName()) {
+            System.out.println("Il faut choisir deux personnes différentes.");
+        } else {
+            g.addEdge(p1.getName(), p2.getName());
+        }
 
     }
 
@@ -199,25 +204,24 @@ public class App {
         Person p = verifyPersonExistence(persons);
 
         if (p.getPreferences().length != 0) {
-            System.out.print(
-                    "Les préférences de cette personne sont déjà définies, voulez-vous les modifiées? \n1.Maintenir la définition actuelle;\n2.Modifier les préférences;\n");
+            int input;
 
-            int input = scanner.nextInt();
+            do {
+                System.out.println(
+                        "Les préférences de cette personne sont déjà définies.\n" +
+                                "1. Maintenir la définition actuelle\n" +
+                                "2. Modifier les préférences");
+                input = scanner.nextInt();
 
-            switch (input) {
-                case 1:
-                    break;
-                case 2:
-                    setPreferences(p, rooms);
-                    break;
-                default:
-                    System.out.print(
-                            "Entrez un chiffre entre les choix proposés: \n");
-                    input = scanner.nextInt();
-                    break;
+                if (input != 1 && input != 2) {
+                    System.out.println("Entrez un chiffre entre 1 et 2.");
+                }
+
+            } while (input != 1 && input != 2);
+
+            if (input == 2) {
+                setPreferences(p, rooms);
             }
-        } else {
-            setPreferences(p, rooms);
         }
 
     }
@@ -273,6 +277,54 @@ public class App {
         }
     }
 
+    public static int rank(Person person, Room room) {
+        Room[] preferences = person.getPreferences();
+
+        for (int i = 0; i < preferences.length; i++) {
+            if (preferences[i] == room) {
+                return i;
+            }
+        }
+
+        return preferences.length;
+    }
+
+    /**
+     * true si la personne i préfère la chambre d'au moins une personne qu'elle
+     * n'aime pas.
+     */
+    public static boolean isJealous(int i, Person[] persons, Graph g) {
+        if (persons[i].getAssignedRoom() == null) {
+            return false;
+        }
+
+        int j = 0;
+
+        while (j < persons.length) {
+            if (i != j
+                    && persons[j].getAssignedRoom() != null
+                    && g.hasEdge(persons[i].getName(), persons[j].getName())
+                    && rank(persons[i], persons[j].getAssignedRoom()) < rank(persons[i],
+                            persons[i].getAssignedRoom())) {
+                return true;
+            }
+            j++;
+        }
+
+        return false;
+    }
+
+    /** Compte les personnes jalouses, chacune une seule fois. */
+    public static int countJealous(Person[] persons, Graph g) {
+        int count = 0;
+        for (int i = 0; i < persons.length; i++) {
+            if (isJealous(i, persons, g)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public static void printAssignments(Person[] persons) {
         System.out.println("\n--- Attribution des chambres ---");
 
@@ -285,21 +337,3 @@ public class App {
         }
     }
 }
-
-// en sorte que si les préférences d'une personne ont déjà été remplie
-// qu'on
-// ne le refasse pas sans savoir
-
-// chaque chambre aura un etat ocupé ou non et
-// l'algo naif sera d'attribuer à une personne sa
-// chambre préférée si elle est libre et sion sa
-// deuxième et sinon sa troisième et ainsi de suite.
-// les relations entre les personnes sera un graphe et
-// avec pour avoir l'ordre de préférence des chambres
-// de chaque personne, il faudra créer
-// un tableau pour enregistrer
-// les préférences de chaque personne.
-
-**
-
-**
