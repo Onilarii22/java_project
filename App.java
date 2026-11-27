@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class App {
     static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("Entrez le nombre de personnes: ");
         int n = scanner.nextInt();
 
@@ -26,7 +26,7 @@ public class App {
                     break;
                 case 2:
                     scanner.nextLine();
-                     definePreferences(people);
+                    definePreferences(people);
                     break;
                 case 3: 
                     done = checkPreferences(people);
@@ -147,6 +147,32 @@ public class App {
             seen[room] = true;
         }
         return true;
+    }
+    /** Retourne la position d'une personne dans le tableau, ou -1 si elle n'existe pas. */
+    public static int findPersonIndex(Person[] persons, char name) {
+        for (int i = 0; i < persons.length; i++) {
+            if (persons[i].getName() == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Échange les chambres de deux personnes. */
+    public static void swapRooms(Person[] persons, Room[] assignment) {
+        System.out.println("Entrez les noms des deux personnes (ex. A B):");
+        int first = findPersonIndex(persons, scanner.next().charAt(0));
+        int second = findPersonIndex(persons, scanner.next().charAt(0));
+
+        if (first < 0 || second < 0) {
+            System.out.println("Personne non trouvée.");
+        } else if (first == second) {
+            System.out.println("Il faut deux personnes différentes.");
+        } else {
+            Room temp = assignment[first];
+            assignment[first] = assignment[second];
+            assignment[second] = temp;
+        }
     }
 }
 // chaque chambre aura un etat ocupé ou non et
