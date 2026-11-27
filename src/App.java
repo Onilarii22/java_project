@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class App {
@@ -8,23 +7,34 @@ public class App {
         System.out.println("Entrez le nombre de personnes: ");
         int n = scanner.nextInt();
 
+        // vérifier qu'il n'zentre pas un nombre inférieur à 0 ou supérieur à 26
+        while (n < 0 || n > 26) {
+            System.out.println("Veuillez entrer un nombre entre 0 et 26: ");
+            n = scanner.nextInt();
+        }
+
         Person[] persons = createPerson(n);
         Room[] rooms = createRoom(n);
         Graph g = new Graph(persons);
-        // g.printGraph();
 
-        System.out.print(
-                "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-        int value = scanner.nextInt();
+        boolean done = false;
+        while (!done) {
+            System.out.print(
+                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
+            int value = scanner.nextInt();
 
-        while (value != 3) {
             switch (value) {
                 case 1:
+                    // crée une relation entre deux personnes
                     associatePersons(persons, g);
                     break;
                 case 2:
                     // définit les préférences de la personne
                     definePreferences(persons, rooms);
+                    break;
+                case 3:
+                    // vérifie qu eles préférences de toutes les personnes ont été définies
+                    done = checkPreferences(persons);
                     break;
                 default:
                     System.out.print("Vous avez entré une valeur invalide. Choisissez entre les valeurs proposées.\n");
@@ -33,21 +43,17 @@ public class App {
                     value = scanner.nextInt();
                     break;
             }
-
-            System.out.print(
-                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-            value = scanner.nextInt();
         }
 
-        if (value == 3) {
-            // faudra vérifier que toutes les personnes ont
-            // des relations et que toutes
-            // leurs préférences sont définies
-            System.out.print(
-                    "Choisissez l'action à effectuer: \n1.ajouter une relation entre deux personnes;\n2.ajouter les préférences d’une personne;\n3.fin;\n");
-            value = scanner.nextInt();
+        g.printGraph();
 
+        assignRoom(persons);
+
+        System.out.print("Voici la liste des personnes avec leurs chambres attibuées: ");
+        for (Person person : persons) {
+            System.out.print(person.getName() + " " + person.getAssignedRoom() + " ");
         }
+        System.out.println();
     }
 
     public static Person[] createPerson(int n) {
@@ -67,29 +73,37 @@ public class App {
         System.out.println();
     }
 
+    public static Person verifyPersonExistence(Person[] persons) {
+        String input = scanner.next();
+
+        // vérifie si l'entrée de l'utisalateur a bien un seul caractère
+        while (input.length() >= 2) {
+            System.out.println("Veuillez un seul caractère pour la personne.");
+            input = scanner.next();
+        }
+
+        char person = input.charAt(0);
+
+        // vérifie si la personne existe dans le tableau persons
+        Person p = findPerson(persons, person);
+        while (p == null) {
+            System.out.println("Personne non trouvée.");
+            person = scanner.next().charAt(0);
+            p = findPerson(persons, person);
+        }
+        return p;
+    }
+
     public static void associatePersons(Person[] persons, Graph g) {
+        // crée l'arête signifiant la relation "ne s'aime pas" entre deux personnes
         printPersons(persons);
         System.out.print("Première personne de la relation «ne s’aiment pas» ");
-        char person_1 = scanner.next().charAt(0);
-
-        Person p1 = findPerson(persons, person_1);
-        while (p1 == null) {
-            System.out.println("Personne non trouvée.");
-            person_1 = scanner.next().charAt(0);
-            p1 = findPerson(persons, person_1);
-        }
+        Person p1 = verifyPersonExistence(persons);
 
         System.out.print("Deuxième personne de la relation «ne s’aiment pas» ");
-        char person_2 = scanner.next().charAt(0);
+        Person p2 = verifyPersonExistence(persons);
 
-        Person p2 = findPerson(persons, person_2);
-        while (p2 == null) {
-            System.out.println("Personne non trouvée.");
-            person_2 = scanner.next().charAt(0);
-            p2 = findPerson(persons, person_2);
-        }
-
-        g.addEdge(person_1, person_2);
+        g.addEdge(p1.getName(), p2.getName());
 
     }
 
@@ -112,6 +126,8 @@ public class App {
 
     public static Room findRoom(Room[] rooms, int number) {
         for (Room room : rooms) {
+            if (room == null)
+                return null;
             if (room.getNumber() == number) {
                 return room;
             }
@@ -124,14 +140,12 @@ public class App {
 
         System.out.print(
                 "Entrez la personne pour laquelle vous souhaitez ajouter les préférences\n");
-        char person = scanner.next().charAt(0);
 
-        // vérifie si la personne existe dans le tableau persons
-        Person p = findPerson(persons, person);
-        while (p == null) {
-            System.out.println("Personne non trouvée.");
-            person = scanner.next().charAt(0);
-            p = findPerson(persons, person);
+        Person p = verifyPersonExistence(persons);
+
+        if (p.getPreferences().length != 0) {
+            System.out.print(
+                    "Les préférences de cette personne sont déjà définies, voulez-vous les modifiées? \n");
         }
 
         System.out.print("Voici les chambres disponibles: ");
@@ -166,7 +180,37 @@ public class App {
 
         p.setPreferences(preferences);
     }
+
+    public static boolean checkPreferences(Person[] people) {
+        boolean valid = true;
+        for (Person person : people) {
+            Room[] preferences = person.getPreferences();
+            if (preferences.length == 0) {
+                System.out.println(person.getName() + " : préférences absentes");
+                valid = false;
+            }
+        }
+        return valid;
+    }
+
+    public static void assignRoom(Person[] persons) {
+        for (Person person : persons) {
+            Room[] prefs = person.getPreferences();
+
+            for (Room room : prefs) {
+                if (room.isOccupied()) {
+                    return;
+                }
+                room.setOccupied(true);
+                person.setRoom(room);
+            }
+        }
+    }
 }
+
+// faire en sorte que si les préférences d'une personne ont déjà été remplie
+// qu'on
+// ne le refasse pas sans savoir
 
 // chaque chambre aura un etat ocupé ou non et
 // l'algo naif sera d'attribuer à une personne sa

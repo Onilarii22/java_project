@@ -10,9 +10,18 @@ public class Graph {
         adjacencyMatrix = new int[vertice.length][vertice.length];
     }
 
+    private int findIndex(char name) {
+        for (int i = 0; i < vertice.length; i++) {
+            if (vertice[i].getName() == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void addEdge(char source, char destination) {
-        int sourceIndex = Arrays.binarySearch(vertice, source);
-        int destinationIndex = Arrays.binarySearch(vertice, destination);
+        int sourceIndex = findIndex(source);
+        int destinationIndex = findIndex(destination);
 
         adjacencyMatrix[sourceIndex][destinationIndex] = 1;
         adjacencyMatrix[destinationIndex][sourceIndex] = 1;
