@@ -206,6 +206,77 @@ public class App {
             }
         }
     }
+        // true si chaque chambre de 1 à n apparaît exactement une fois. */
+    public static boolean isComplete(int[] preferences, int n) {
+        if (preferences.length != n) {
+            return false;
+        }
+        boolean[] seen = new boolean[n + 1];
+        for (int room : preferences) {
+            if (room < 1 || room > n || seen[room]) {
+                return false;
+            }
+            seen[room] = true;
+        }
+        return true;
+    }
+    /** Retourne la position d'une personne dans le tableau, ou -1 si elle n'existe pas. */
+    public static int findPersonIndex(Person[] persons, char name) {
+        for (int i = 0; i < persons.length; i++) {
+            if (persons[i].getName() == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Échange les chambres de deux personnes. */
+    public static void swapRooms(Person[] persons, Room[] assignment) {
+        System.out.println("Entrez les noms des deux personnes (ex. A B):");
+        int first = findPersonIndex(persons, scanner.next().charAt(0));
+        int second = findPersonIndex(persons, scanner.next().charAt(0));
+
+        if (first < 0 || second < 0) {
+            System.out.println("Personne non trouvée.");
+        } else if (first == second) {
+            System.out.println("Il faut deux personnes différentes.");
+        } else {
+            Room temp = assignment[first];
+            assignment[first] = assignment[second];
+            assignment[second] = temp;
+        }
+    }
+
+    public static int rank(Person person, Room room) {
+        Room[] preferences = person.getPreferences(); 
+        int i = 0;                                    
+        while (preferences[i] != room) {              
+            i++;                                      
+        }
+        return i;                                     
+    }
+
+    /** true si la personne i préfère la chambre d'au moins une personne qu'elle n'aime pas. */
+    public static boolean isJealous(int i, Person[] persons, Room[] assignment, Graph g) {
+        boolean jealous = false;
+        int j = 0;
+        while (j < persons.length && !jealous) {
+            jealous = g.hasEdge(persons[i].getName(), persons[j].getName()) && rank(persons[i], assignment[j]) < rank(persons[i], assignment[i]);
+            j++;
+        }
+        return jealous;
+    }
+
+    /** Compte les personnes jalouses, chacune une seule fois. */
+    public static int countJealous(Person[] persons, Room[] assignment, Graph g) {
+        int count = 0;
+        for (int i = 0; i < persons.length; i++) {
+            if (isJealous(i, persons, assignment, g)) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
 
 // faire en sorte que si les préférences d'une personne ont déjà été remplie
