@@ -222,6 +222,8 @@ public class App {
             if (input == 2) {
                 setPreferences(p, rooms);
             }
+        } else {
+            setPreferences(p, rooms);
         }
 
     }
