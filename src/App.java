@@ -284,10 +284,9 @@ public class App {
             }
         }
     }
-
 }
 
-// faire en sorte que si les préférences d'une personne ont déjà été remplie
+// en sorte que si les préférences d'une personne ont déjà été remplie
 // qu'on
 // ne le refasse pas sans savoir
 
@@ -300,3 +299,7 @@ public class App {
 // de chaque personne, il faudra créer
 // un tableau pour enregistrer
 // les préférences de chaque personne.
+
+**
+
+**
